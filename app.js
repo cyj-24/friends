@@ -294,19 +294,19 @@ function renderAgentCards() {
                     </div>
                 </div>
                 <div class="agent-details">
+                    <div class="detail-row activity">
+                        <span class="detail-icon">💭</span>
+                        <span class="detail-label">正在做</span>
+                        <span class="detail-value activity-text">${member.state.activity}</span>
+                    </div>
                     <div class="detail-row">
                         <span class="detail-icon">📍</span>
                         <span class="detail-label">位置</span>
                         <span class="detail-value">${member.state.location}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-icon">💭</span>
-                        <span class="detail-label">活动</span>
-                        <span class="detail-value">${member.state.activity}</span>
-                    </div>
-                    <div class="detail-row">
                         <span class="detail-icon">🍜</span>
-                        <span class="detail-label">餐饮</span>
+                        <span class="detail-label">饮食</span>
                         <span class="detail-value">${member.state.food}</span>
                     </div>
                     <div class="detail-row">
@@ -315,6 +315,7 @@ function renderAgentCards() {
                         <span class="detail-value">${member.state.mood}</span>
                     </div>
                 </div>
+                <button class="view-details-btn" onclick="viewAgentTimeline('${member.id}')">📋 查看活动记录</button>
                 <div class="energy-bar">
                     <span class="detail-icon">⚡</span>
                     <div class="energy-track">
@@ -581,10 +582,100 @@ setInterval(() => {
     updateRouteLine();
 }, 10000);
 
+// ==================== 11. 个人活动时间轴 ====================
+
+let currentTimelineAgent = null;
+let currentTimelineFilter = 'all';
+
+function viewAgentTimeline(agentId) {
+    currentTimelineAgent = agentId;
+    const agent = TEAM_MEMBERS[agentId];
+
+    document.getElementById('timelineTitle').innerHTML = `
+        ${agent.avatar} ${agent.name} 的活动记录
+    `;
+
+    renderTimeline();
+    document.getElementById('timelineModal').classList.add('active');
+
+    // 绑定筛选按钮
+    bindTimelineFilters();
+}
+
+function closeTimelineModal() {
+    document.getElementById('timelineModal').classList.remove('active');
+    currentTimelineAgent = null;
+}
+
+function bindTimelineFilters() {
+    document.querySelectorAll('.timeline-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.timeline-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentTimelineFilter = this.dataset.filter;
+            renderTimeline();
+        });
+    });
+}
+
+function renderTimeline() {
+    const container = document.getElementById('agentTimeline');
+
+    // 筛选该Agent的日志
+    let agentLogs = TRIP_LOGS.filter(log => log.author === currentTimelineAgent);
+
+    // 应用筛选
+    if (currentTimelineFilter !== 'all') {
+        agentLogs = agentLogs.filter(log => log.type === currentTimelineFilter);
+    }
+
+    // 按时间倒序
+    agentLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (agentLogs.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px;color:#999;">
+                <div style="font-size:48px;margin-bottom:10px;">📭</div>
+                <p>暂无活动记录</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = agentLogs.map(log => {
+        const time = new Date(log.timestamp).toLocaleString('zh-CN', {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const agent = TEAM_MEMBERS[log.author];
+
+        let typeIcon = '📝';
+        let typeClass = '';
+        if (log.type === 'location') { typeIcon = '📍'; typeClass = 'milestone'; }
+        if (log.type === 'status') { typeIcon = '💭'; }
+        if (log.type === 'milestone') { typeIcon = '🎉'; typeClass = 'milestone'; }
+
+        return `
+            <div class="timeline-item ${typeClass}">
+                <div class="timeline-time">${time}</div>
+                <div class="timeline-content">${typeIcon} ${log.content}</div>
+                <div class="timeline-meta">
+                    <span class="timeline-agent" style="color: ${agent.color};">
+                        ${agent.avatar} ${agent.name}
+                    </span>
+                    ${log.location ? `<span>📍 ${log.location}</span>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 // 导出全局函数
 window.updateStatus = updateStatus;
 window.openPostModal = openPostModal;
 window.closePostModal = closePostModal;
 window.submitPost = submitPost;
+window.viewAgentTimeline = viewAgentTimeline;
+window.closeTimelineModal = closeTimelineModal;
 
 console.log('🚐 脚本加载完成');
