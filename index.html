@@ -528,6 +528,316 @@
             color: white;
         }
 
+        /* 房车图标（地图上点击） */
+        .rv-marker-clickable {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .rv-marker-clickable:hover {
+            transform: scale(1.2);
+        }
+
+        /* 车内像素场景 */
+        .rv-interior-modal {
+            background: #1a1a2e !important;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .rv-interior-scene {
+            background: #5d4e37;
+            padding: 20px;
+            position: relative;
+            min-height: 500px;
+            image-rendering: pixelated;
+        }
+
+        .rv-interior-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 100;
+        }
+
+        .rv-interior-title {
+            text-align: center;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* 像素地板 */
+        .pixel-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: repeating-linear-gradient(
+                0deg,
+                #8b7355 0px,
+                #8b7355 8px,
+                #a0826d 8px,
+                #a0826d 16px
+            );
+            border-top: 4px solid #3d3226;
+        }
+
+        /* 像素家具 */
+        .pixel-furniture {
+            position: absolute;
+            background: #6c5ce7;
+            border: 4px solid #3d3226;
+        }
+
+        .pixel-sofa {
+            bottom: 80px;
+            right: 40px;
+            width: 120px;
+            height: 60px;
+            background: #e17055;
+        }
+
+        .pixel-sofa::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: #d63031;
+            border: 4px solid #3d3226;
+            border-bottom: none;
+        }
+
+        .pixel-table {
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 50px;
+            background: #a0522d;
+        }
+
+        .pixel-window {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #87ceeb;
+            border: 4px solid #3d3226;
+            top: 20px;
+        }
+
+        .pixel-window::before, .pixel-window::after {
+            content: '';
+            position: absolute;
+            background: #3d3226;
+        }
+
+        .pixel-window::before {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .pixel-window::after {
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+        }
+
+        /* 像素人 */
+        .rv-pixel-person {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .rv-pixel-person:hover {
+            transform: scale(1.1);
+        }
+
+        .rv-pixel-avatar {
+            width: 48px;
+            height: 64px;
+            position: relative;
+        }
+
+        .rv-pixel-head, .rv-pixel-body {
+            position: relative;
+        }
+
+        .rv-pixel-head {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto;
+        }
+
+        .rv-pixel-body {
+            width: 40px;
+            height: 28px;
+            margin: 4px auto 0;
+        }
+
+        .rv-pixel {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+        }
+
+        /* JCL - 蓝色 */
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(1) { top: 0; left: 8px; background: #ffccaa; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(2) { top: 0; left: 16px; background: #ffccaa; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(3) { top: 8px; left: 0; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(4) { top: 8px; left: 8px; background: #ffccaa; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(5) { top: 8px; left: 16px; background: #ffccaa; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(6) { top: 8px; left: 24px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(7) { top: 16px; left: 8px; background: #ffccaa; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(8) { top: 16px; left: 16px; background: #ffccaa; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(9) { top: 24px; left: 8px; background: #6d4c41; }
+        .rv-person-jcl .rv-pixel-head .rv-pixel:nth-child(10) { top: 24px; left: 16px; background: #6d4c41; }
+
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(1) { top: 0; left: 0; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(2) { top: 0; left: 8px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(3) { top: 0; left: 16px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(4) { top: 0; left: 24px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(5) { top: 0; left: 32px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(6) { top: 8px; left: 0; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(7) { top: 8px; left: 8px; background: #74b9ff; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(8) { top: 8px; left: 16px; background: #74b9ff; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(9) { top: 8px; left: 24px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(10) { top: 8px; left: 32px; background: #0984e3; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(11) { top: 16px; left: 8px; background: #2d3436; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(12) { top: 16px; left: 16px; background: #2d3436; }
+        .rv-person-jcl .rv-pixel-body .rv-pixel:nth-child(13) { top: 16px; left: 24px; background: #2d3436; }
+
+        /* PYJ - 粉色 */
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(1) { top: 0; left: 8px; background: #ffccaa; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(2) { top: 0; left: 16px; background: #ffccaa; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(3) { top: 8px; left: 0; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(4) { top: 8px; left: 8px; background: #ffccaa; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(5) { top: 8px; left: 16px; background: #ffccaa; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(6) { top: 8px; left: 24px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(7) { top: 16px; left: 8px; background: #ffccaa; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(8) { top: 16px; left: 16px; background: #ffccaa; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(9) { top: 24px; left: 8px; background: #d63031; }
+        .rv-person-pyj .rv-pixel-head .rv-pixel:nth-child(10) { top: 24px; left: 16px; background: #d63031; }
+
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(1) { top: 0; left: 0; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(2) { top: 0; left: 8px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(3) { top: 0; left: 16px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(4) { top: 0; left: 24px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(5) { top: 0; left: 32px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(6) { top: 8px; left: 0; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(7) { top: 8px; left: 8px; background: #fab1a0; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(8) { top: 8px; left: 16px; background: #fab1a0; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(9) { top: 8px; left: 24px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(10) { top: 8px; left: 32px; background: #fd79a8; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(11) { top: 16px; left: 8px; background: #2d3436; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(12) { top: 16px; left: 16px; background: #2d3436; }
+        .rv-person-pyj .rv-pixel-body .rv-pixel:nth-child(13) { top: 16px; left: 24px; background: #2d3436; }
+
+        /* LWJ - 绿色 */
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(1) { top: 0; left: 8px; background: #ffccaa; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(2) { top: 0; left: 16px; background: #ffccaa; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(3) { top: 8px; left: 0; background: #00b894; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(4) { top: 8px; left: 8px; background: #ffccaa; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(5) { top: 8px; left: 16px; background: #ffccaa; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(6) { top: 8px; left: 24px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(7) { top: 16px; left: 8px; background: #ffccaa; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(8) { top: 16px; left: 16px; background: #ffccaa; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(9) { top: 24px; left: 8px; background: #6d4c41; }
+        .rv-person-lwj .rv-pixel-head .rv-pixel:nth-child(10) { top: 24px; left: 16px; background: #6d4c41; }
+
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(1) { top: 0; left: 0; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(2) { top: 0; left: 8px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(3) { top: 0; left: 16px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(4) { top: 0; left: 24px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(5) { top: 0; left: 32px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(6) { top: 8px; left: 0; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(7) { top: 8px; left: 8px; background: #55efc4; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(8) { top: 8px; left: 16px; background: #55efc4; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(9) { top: 8px; left: 24px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(10) { top: 8px; left: 32px; background: #00b894; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(11) { top: 16px; left: 8px; background: #2d3436; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(12) { top: 16px; left: 16px; background: #2d3436; }
+        .rv-person-lwj .rv-pixel-body .rv-pixel:nth-child(13) { top: 16px; left: 24px; background: #2d3436; }
+
+        /* CYJ - 紫色 */
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(1) { top: 0; left: 8px; background: #ffccaa; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(2) { top: 0; left: 16px; background: #ffccaa; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(3) { top: 8px; left: 0; background: #a29bfe; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(4) { top: 8px; left: 8px; background: #ffccaa; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(5) { top: 8px; left: 16px; background: #ffccaa; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(6) { top: 8px; left: 24px; background: #a29bfe; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(7) { top: 16px; left: 8px; background: #ffccaa; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(8) { top: 16px; left: 16px; background: #ffccaa; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(9) { top: 24px; left: 8px; background: #d63031; }
+        .rv-person-cyj .rv-pixel-head .rv-pixel:nth-child(10) { top: 24px; left: 16px; background: #d63031; }
+
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(1) { top: 0; left: 0; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(2) { top: 0; left: 8px; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(3) { top: 0; left: 16px; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(4) { top: 0; left: 24px; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(5) { top: 0; left: 32px; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(6) { top: 8px; left: 0; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(7) { top: 8px; left: 8px; background: #a29bfe; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(8) { top: 8px; left: 16px; background: #a29bfe; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(9) { top: 8px; left: 24px; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(10) { top: 8px; left: 32px; background: #6c5ce7; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(11) { top: 16px; left: 8px; background: #2d3436; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(12) { top: 16px; left: 16px; background: #2d3436; }
+        .rv-person-cyj .rv-pixel-body .rv-pixel:nth-child(13) { top: 16px; left: 24px; background: #2d3436; }
+
+        /* 状态气泡 */
+        .rv-status-bubble {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            border: 3px solid #000;
+            padding: 6px 10px;
+            font-size: 10px;
+            color: #000;
+            white-space: nowrap;
+            z-index: 20;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+        }
+
+        .rv-status-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #000;
+        }
+
+        .rv-name-tag {
+            margin-top: 6px;
+            padding: 4px 8px;
+            background: #000;
+            color: #fff;
+            font-size: 10px;
+            border: 2px solid #fff;
+        }
+
         /* 能量条 */
         .energy-bar {
             display: flex;
@@ -877,6 +1187,15 @@
                 <div class="timeline" id="agentTimeline">
                     <!-- 动态生成 -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 房车内部像素场景弹窗 -->
+    <div class="modal" id="rvInteriorModal">
+        <div class="modal-content rv-interior-modal" style="max-width: 900px; padding: 0; overflow: hidden;">
+            <div class="rv-interior-container" id="rvInteriorContainer">
+                <!-- 像素车内场景 -->
             </div>
         </div>
     </div>

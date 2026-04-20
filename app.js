@@ -136,16 +136,21 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // 添加房车图标
+    // 添加房车图标（可点击）
     const rvIcon = L.divIcon({
-        className: 'rv-marker',
-        html: '<div style="font-size:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🚐</div>',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        className: 'rv-marker rv-marker-clickable',
+        html: '<div style="font-size:40px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));cursor:pointer;" title="点击进入房车内部">🚐</div>',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     });
 
     rvMarker = L.marker(currentPos, { icon: rvIcon }).addTo(map);
-    rvMarker.bindPopup('<b>🚐 房车当前位置</b><br>' + TRIP_STATS.currentLocation);
+    rvMarker.bindPopup('<b>🚐 房车当前位置</b><br>' + TRIP_STATS.currentLocation + '<br><small>点击房车查看内部</small>');
+
+    // 点击房车打开内部场景
+    rvMarker.on('click', function() {
+        openRVInterior();
+    });
 
     // 绘制已走路线
     updateRouteLine();
@@ -670,6 +675,100 @@ function renderTimeline() {
     }).join('');
 }
 
+// ==================== 12. 房车内部像素场景 ====================
+
+function openRVInterior() {
+    renderRVInterior();
+    document.getElementById('rvInteriorModal').classList.add('active');
+}
+
+function closeRVInterior() {
+    document.getElementById('rvInteriorModal').classList.remove('active');
+}
+
+function renderRVInterior() {
+    const container = document.getElementById('rvInteriorContainer');
+
+    // 获取每个人当前的状态
+    const getActivity = (member) => {
+        return member.state.activity || '休息中';
+    };
+
+    container.innerHTML = `
+        <div class="rv-interior-scene">
+            <button class="rv-interior-close" onclick="closeRVInterior()">✕ 关闭</button>
+            <h2 class="rv-interior-title">🚐 房车内部 - 实时看板</h2>
+
+            <!-- 窗户 -->
+            <div class="pixel-window" style="left: 20px;"></div>
+            <div class="pixel-window" style="right: 20px;"></div>
+
+            <!-- 家具 -->
+            <div class="pixel-furniture pixel-sofa"></div>
+            <div class="pixel-furniture pixel-table"></div>
+
+            <!-- 地板 -->
+            <div class="pixel-floor"></div>
+
+            <!-- JCL - 驾驶座区域 -->
+            <div class="rv-pixel-person rv-person-jcl" style="top: 100px; left: 40px;">
+                <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.JCL)}</div>
+                <div class="rv-pixel-avatar">
+                    <div class="rv-pixel-head">
+                        ${Array(10).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                    <div class="rv-pixel-body">
+                        ${Array(13).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                </div>
+                <div class="rv-name-tag">JCL</div>
+            </div>
+
+            <!-- PYJ - 厨房区域 -->
+            <div class="rv-pixel-person rv-person-pyj" style="top: 100px; right: 50px;">
+                <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.PYJ)}</div>
+                <div class="rv-pixel-avatar">
+                    <div class="rv-pixel-head">
+                        ${Array(10).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                    <div class="rv-pixel-body">
+                        ${Array(13).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                </div>
+                <div class="rv-name-tag">PYJ</div>
+            </div>
+
+            <!-- LWJ - 桌子旁 -->
+            <div class="rv-pixel-person rv-person-lwj" style="bottom: 100px; left: 50%; transform: translateX(-50%);">
+                <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.LWJ)}</div>
+                <div class="rv-pixel-avatar">
+                    <div class="rv-pixel-head">
+                        ${Array(10).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                    <div class="rv-pixel-body">
+                        ${Array(13).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                </div>
+                <div class="rv-name-tag">LWJ</div>
+            </div>
+
+            <!-- CYJ - 沙发区 -->
+            <div class="rv-pixel-person rv-person-cyj" style="bottom: 100px; right: 70px;">
+                <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.CYJ)}</div>
+                <div class="rv-pixel-avatar">
+                    <div class="rv-pixel-head">
+                        ${Array(10).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                    <div class="rv-pixel-body">
+                        ${Array(13).fill('<div class="rv-pixel"></div>').join('')}
+                    </div>
+                </div>
+                <div class="rv-name-tag">CYJ</div>
+            </div>
+        </div>
+    `;
+}
+
 // 导出全局函数
 window.updateStatus = updateStatus;
 window.openPostModal = openPostModal;
@@ -677,5 +776,7 @@ window.closePostModal = closePostModal;
 window.submitPost = submitPost;
 window.viewAgentTimeline = viewAgentTimeline;
 window.closeTimelineModal = closeTimelineModal;
+window.openRVInterior = openRVInterior;
+window.closeRVInterior = closeRVInterior;
 
 console.log('🚐 脚本加载完成');
