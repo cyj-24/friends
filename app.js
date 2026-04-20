@@ -139,16 +139,30 @@ function initMap() {
     // 添加房车图标（可点击）
     const rvIcon = L.divIcon({
         className: 'rv-marker rv-marker-clickable',
-        html: '<div style="font-size:40px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));cursor:pointer;" title="点击进入房车内部">🚐</div>',
-        iconSize: [40, 40],
-        iconAnchor: [20, 20]
+        html: '<div style="font-size:48px;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.4));cursor:pointer;animation:bounce 2s infinite;" title="🖱️ 点击进入房车内部">🚐</div>',
+        iconSize: [48, 48],
+        iconAnchor: [24, 24]
     });
 
     rvMarker = L.marker(currentPos, { icon: rvIcon }).addTo(map);
-    rvMarker.bindPopup('<b>🚐 房车当前位置</b><br>' + TRIP_STATS.currentLocation + '<br><small>点击房车查看内部</small>');
 
-    // 点击房车打开内部场景
-    rvMarker.on('click', function() {
+    // 点击房车打开内部场景（绑定到div元素）
+    setTimeout(() => {
+        const rvElement = document.querySelector('.rv-marker-clickable');
+        if (rvElement) {
+            rvElement.style.cursor = 'pointer';
+            rvElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log('🚐 房车被点击了！');
+                openRVInterior();
+            });
+        }
+    }, 500);
+
+    // Leaflet 的点击事件也绑定
+    rvMarker.on('click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        console.log('🚐 房车marker被点击');
         openRVInterior();
     });
 
