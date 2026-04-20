@@ -549,11 +549,17 @@
         }
 
         .rv-interior-scene {
-            background: #5d4e37;
+            background: linear-gradient(180deg, #6d5e47 0%, #5d4e37 50%, #4d3e27 100%);
             padding: 20px;
             position: relative;
             min-height: 500px;
             image-rendering: pixelated;
+            border: 6px solid #3d3226;
+            box-shadow:
+                inset 0 0 100px rgba(0,0,0,0.3),
+                0 0 0 4px #2d2420,
+                0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
 
         .rv-interior-close {
@@ -573,9 +579,16 @@
         .rv-interior-title {
             text-align: center;
             color: #fff;
-            font-size: 14px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 0 #000;
+            font-size: 16px;
+            margin-bottom: 25px;
+            text-shadow:
+                3px 3px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000;
+            letter-spacing: 2px;
+            font-weight: bold;
         }
 
         /* 像素地板 */
@@ -586,13 +599,57 @@
             right: 0;
             height: 80px;
             background: repeating-linear-gradient(
-                0deg,
-                #8b7355 0px,
-                #8b7355 8px,
-                #a0826d 8px,
-                #a0826d 16px
+                90deg,
+                #a0826d 0px,
+                #a0826d 20px,
+                #8b7355 20px,
+                #8b7355 40px
             );
-            border-top: 4px solid #3d3226;
+            border-top: 6px solid #3d3226;
+            box-shadow:
+                inset 0 10px 20px rgba(0,0,0,0.3),
+                0 -4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 驾驶座区域 */
+        .pixel-driver-area {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            width: 110px;
+            height: 90px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #2d3436 100%);
+            border: 4px solid #1a1a1a;
+            border-radius: 8px;
+            box-shadow:
+                inset 4px 4px 0 rgba(255,255,255,0.1),
+                0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .pixel-driver-seat {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+            border: 3px solid #1a1a1a;
+            border-radius: 8px;
+            box-shadow:
+                inset 3px 3px 0 rgba(255,255,255,0.2),
+                0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .pixel-steering-wheel {
+            position: absolute;
+            top: 20px;
+            right: 10px;
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle, #2d3436 30%, #636e72 31%, #636e72 45%, #2d3436 46%);
+            border: 3px solid #1a1a1a;
+            border-radius: 50%;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
 
         /* 像素家具 */
@@ -600,44 +657,58 @@
             position: absolute;
             background: #6c5ce7;
             border: 4px solid #3d3226;
+            box-shadow:
+                inset -4px -4px 0 rgba(0,0,0,0.2),
+                inset 4px 4px 0 rgba(255,255,255,0.2),
+                0 4px 8px rgba(0,0,0,0.3);
         }
 
         .pixel-sofa {
             bottom: 80px;
             right: 40px;
             width: 120px;
-            height: 60px;
-            background: #e17055;
+            height: 50px;
+            background: linear-gradient(180deg, #ff7675 0%, #e17055 100%);
+            border-radius: 8px 8px 0 0;
         }
 
         .pixel-sofa::before {
             content: '';
             position: absolute;
-            top: -20px;
-            left: 0;
-            right: 0;
-            height: 20px;
-            background: #d63031;
+            top: -25px;
+            left: -4px;
+            right: -4px;
+            height: 25px;
+            background: linear-gradient(180deg, #fab1a0 0%, #e17055 100%);
             border: 4px solid #3d3226;
             border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            box-shadow: inset 4px 4px 0 rgba(255,255,255,0.3);
         }
 
         .pixel-table {
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 50px;
-            background: #a0522d;
+            width: 100px;
+            height: 55px;
+            background: linear-gradient(180deg, #cd853f 0%, #8b4513 100%);
+            box-shadow:
+                inset 0 4px 0 rgba(255,255,255,0.2),
+                0 6px 12px rgba(0,0,0,0.4);
         }
 
         .pixel-window {
             position: absolute;
             width: 80px;
             height: 60px;
-            background: #87ceeb;
+            background: linear-gradient(135deg, #87ceeb 0%, #b8e6f5 50%, #5dade2 100%);
             border: 4px solid #3d3226;
-            top: 20px;
+            top: 40px;
+            box-shadow:
+                inset 2px 2px 0 rgba(255,255,255,0.4),
+                inset -2px -2px 0 rgba(0,0,0,0.2),
+                0 4px 8px rgba(0,0,0,0.3);
         }
 
         .pixel-window::before, .pixel-window::after {
@@ -667,12 +738,15 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, filter 0.2s;
             z-index: 10;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
 
         .rv-pixel-person:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+            z-index: 100;
         }
 
         .rv-pixel-avatar {
@@ -701,6 +775,8 @@
             position: absolute;
             width: 8px;
             height: 8px;
+            box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.15);
+            image-rendering: pixelated;
         }
 
         /* JCL - 蓝色 */
@@ -810,14 +886,16 @@
         /* 状态气泡 */
         .rv-status-bubble {
             position: absolute;
-            top: -50px;
+            top: -55px;
             left: 50%;
             transform: translateX(-50%);
-            background: #fff;
+            background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
             border: 3px solid #000;
-            padding: 6px 10px;
-            font-size: 10px;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: bold;
             color: #000;
+            border-radius: 4px;
             white-space: nowrap;
             z-index: 20;
             box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
@@ -834,13 +912,54 @@
             border-top: 8px solid #000;
         }
 
+        .rv-status-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #fff;
+            z-index: 1;
+        }
+
         .rv-name-tag {
             margin-top: 6px;
-            padding: 4px 8px;
-            background: #000;
+            padding: 4px 10px;
+            background: linear-gradient(180deg, #2d3436 0%, #000 100%);
             color: #fff;
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: bold;
             border: 2px solid #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* 角色标签 */
+        .role-tag {
+            font-size: 10px;
+            color: #fff;
+            margin-top: 4px;
+            text-align: center;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        /* 位置指示 */
+        .position-tag {
+            font-size: 10px;
+            color: #74b9ff;
+            margin-top: 3px;
+            text-align: center;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
         /* 能量条 */
@@ -1201,6 +1320,11 @@
         <div class="modal-content rv-interior-modal" style="max-width: 900px; padding: 0; overflow: hidden;">
             <div class="rv-interior-container" id="rvInteriorContainer">
                 <!-- 像素车内场景 -->
+            </div>
+            <div style="padding: 10px; text-align: center; background: #2d3436; border-top: 2px solid #3d3226;">
+                <a href="rv-phaser.html" target="_blank" style="color: #74b9ff; text-decoration: none; font-size: 12px;">
+                    🎮 查看 Phaser 3D 版本 →
+                </a>
             </div>
         </div>
     </div>

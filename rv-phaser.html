@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚐 房车内部 - Phaser 版本</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            color: #74b9ff;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        #game-container {
+            border: 4px solid #3d3226;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .back-link {
+            margin-top: 20px;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #ff6b35;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: #ff8555;
+        }
+
+        .info {
+            margin-top: 15px;
+            color: #b2bec3;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚐 房车内部实时看板</h1>
+        <p>Phaser 3 像素渲染版本</p>
+    </div>
+
+    <div id="game-container"></div>
+
+    <div class="info">
+        点击人物查看详细状态 | 数据与主页面同步
+    </div>
+
+    <a href="index.html" class="back-link">← 返回主页面</a>
+
+    <script>
+        // 团队成员数据（与主页面保持一致）
+        const TEAM_MEMBERS = {
+            JCL: { name: 'JCL', role: '主驾驶', color: 0x0984e3, x: 120, y: 200 },
+            PYJ: { name: 'PYJ', role: '厨师', color: 0xfd79a8, x: 680, y: 200 },
+            LWJ: { name: 'LWJ', role: '导航', color: 0x00b894, x: 400, y: 380 },
+            CYJ: { name: 'CYJ', role: '摄影', color: 0x6c5ce7, x: 600, y: 380 }
+        };
+
+        // 从 localStorage 获取状态
+        function getMemberState(id) {
+            const data = localStorage.getItem('rv_adventure_data');
+            if (data) {
+                const parsed = JSON.parse(data);
+                const member = parsed.members.find(m => m.id === id);
+                if (member && member.state) {
+                    return member.state;
+                }
+            }
+            return { activity: '休息中', mood: '开心' };
+        }
+
+        // Phaser 场景类
+        class RVInteriorScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'RVInterior' });
+            }
+
+            preload() {
+                // 不需要加载外部资源，全部用图形 API 绘制
+            }
+
+            create() {
+                // 启用像素完美模式
+                this.cameras.main.setZoom(1);
+
+                // ========== 绘制背景 ==========
+                this.drawBackground();
+
+                // ========== 绘制地板 ==========
+                this.drawFloor();
+
+                // ========== 绘制窗户 ==========
+                this.drawWindow(80, 60);
+                this.drawWindow(720, 60);
+
+                // ========== 绘制家具 ==========
+                this.drawDriverArea(40, 140);
+                this.drawSofa(580, 340);
+                this.drawTable(350, 360);
+
+                // ========== 绘制人物 ==========
+                this.characters = {};
+                this.bubbles = {};
+
+                Object.keys(TEAM_MEMBERS).forEach(id => {
+                    const member = TEAM_MEMBERS[id];
+                    const state = getMemberState(id);
+
+                    // 绘制人物
+                    this.characters[id] = this.drawCharacter(
+                        member.x,
+                        member.y,
+                        member.color,
+                        id
+                    );
+
+                    // 绘制状态气泡
+                    this.bubbles[id] = this.createStatusBubble(
+                        member.x,
+                        member.y - 60,
+                        state.activity || '休息中'
+                    );
+
+                    // 绘制名字标签
+                    this.createNameTag(member.x, member.y + 45, member.name, member.role);
+                });
+
+                // ========== 标题 ==========
+                this.add.text(400, 20, '🚐 房车内部 - 实时看板', {
+                    fontFamily: 'Arial',
+                    fontSize: '20px',
+                    color: '#ffffff',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5).setShadow(2, 2, '#000000', 2, true, true);
+
+                // ========== 点击交互 ==========
+                Object.keys(this.characters).forEach(id => {
+                    const char = this.characters[id];
+                    char.setInteractive();
+
+                    // 鼠标悬停效果
+                    char.on('pointerover', () => {
+                        this.tweens.add({
+                            targets: char,
+                            scale: 1.1,
+                            duration: 200,
+                            ease: 'Power2'
+                        });
+                        document.body.style.cursor = 'pointer';
+                    });
+
+                    char.on('pointerout', () => {
+                        this.tweens.add({
+                            targets: char,
+                            scale: 1,
+                            duration: 200,
+                            ease: 'Power2'
+                        });
+                        document.body.style.cursor = 'default';
+                    });
+
+                    // 点击显示详情
+                    char.on('pointerdown', () => {
+                        this.showCharacterDetail(id);
+                    });
+                });
+
+                // 定期刷新状态
+                this.time.addEvent({
+                    delay: 5000,
+                    callback: this.refreshStates,
+                    callbackScope: this,
+                    loop: true
+                });
+            }
+
+            // ========== 绘制方法 ==========
+
+            drawBackground() {
+                // 主背景渐变
+                const graphics = this.add.graphics();
+
+                // 墙壁（顶部）
+                graphics.fillGradientStyle(0x6d5e47, 0x6d5e47, 0x5d4e37, 0x5d4e37, 1);
+                graphics.fillRect(0, 0, 800, 450);
+
+                // 底部暗角效果
+                graphics.fillGradientStyle(0x5d4e37, 0x5d4e37, 0x4d3e27, 0x4d3e27, 0.5);
+                graphics.fillRect(0, 300, 800, 150);
+
+                // 边框
+                graphics.lineStyle(6, 0x3d3226);
+                graphics.strokeRect(0, 0, 800, 450);
+            }
+
+            drawFloor() {
+                const graphics = this.add.graphics();
+
+                // 地板底色
+                graphics.fillStyle(0x8b7355);
+                graphics.fillRect(0, 370, 800, 80);
+
+                // 木纹条
+                graphics.fillStyle(0xa0826d);
+                for (let i = 0; i < 800; i += 40) {
+                    graphics.fillRect(i, 370, 20, 80);
+                }
+
+                // 地板边框
+                graphics.lineStyle(6, 0x3d3226);
+                graphics.beginPath();
+                graphics.moveTo(0, 370);
+                graphics.lineTo(800, 370);
+                graphics.strokePath();
+
+                // 阴影效果
+                graphics.fillStyle(0x000000, 0.3);
+                graphics.fillRect(0, 370, 800, 10);
+            }
+
+            drawWindow(x, y) {
+                const graphics = this.add.graphics();
+
+                // 窗框
+                graphics.fillStyle(0x3d3226);
+                graphics.fillRect(x - 44, y - 34, 88, 68);
+
+                // 玻璃（渐变天空效果）
+                graphics.fillGradientStyle(0x87ceeb, 0x87ceeb, 0xb8e6f5, 0x5dade2, 1);
+                graphics.fillRect(x - 40, y - 30, 80, 60);
+
+                // 窗棂（十字）
+                graphics.fillStyle(0x3d3226);
+                graphics.fillRect(x - 2, y - 30, 4, 60);
+                graphics.fillRect(x - 40, y - 2, 80, 4);
+
+                // 高光
+                graphics.fillStyle(0xffffff, 0.3);
+                graphics.fillRect(x - 35, y - 25, 15, 20);
+            }
+
+            drawDriverArea(x, y) {
+                const graphics = this.add.graphics();
+
+                // 驾驶区域底座
+                graphics.fillStyle(0x2d3436);
+                graphics.fillRect(x, y, 110, 90);
+                graphics.lineStyle(3, 0x1a1a1a);
+                graphics.strokeRect(x, y, 110, 90);
+
+                // 座椅
+                graphics.fillGradientStyle(0x636e72, 0x636e72, 0x2d3436, 0x2d3436, 1);
+                graphics.fillRect(x + 10, y + 15, 55, 55);
+                graphics.lineStyle(2, 0x1a1a1a);
+                graphics.strokeRect(x + 10, y + 15, 55, 55);
+
+                // 方向盘（用圆形）
+                const wheelGraphics = this.add.graphics();
+                wheelGraphics.fillStyle(0x2d3436);
+                wheelGraphics.fillCircle(x + 85, y + 35, 18);
+                wheelGraphics.fillStyle(0x636e72);
+                wheelGraphics.fillCircle(x + 85, y + 35, 12);
+                wheelGraphics.fillStyle(0x2d3436);
+                wheelGraphics.fillCircle(x + 85, y + 35, 6);
+
+                // 方向盘辐条
+                wheelGraphics.fillStyle(0x636e72);
+                wheelGraphics.fillRect(x + 83, y + 17, 4, 36);
+                wheelGraphics.fillRect(x + 67, y + 33, 36, 4);
+            }
+
+            drawSofa(x, y) {
+                const graphics = this.add.graphics();
+
+                // 沙发靠背
+                graphics.fillGradientStyle(0xff7675, 0xff7675, 0xe17055, 0xe17055, 1);
+                graphics.fillRect(x, y - 25, 120, 25);
+                graphics.lineStyle(3, 0x3d3226);
+                graphics.strokeRect(x, y - 25, 120, 25);
+
+                // 沙发座垫
+                graphics.fillGradientStyle(0xe17055, 0xe17055, 0xd63031, 0xd63031, 1);
+                graphics.fillRect(x, y, 120, 50);
+                graphics.strokeRect(x, y, 120, 50);
+
+                // 阴影
+                graphics.fillStyle(0x000000, 0.2);
+                graphics.fillRect(x + 5, y + 45, 110, 8);
+            }
+
+            drawTable(x, y) {
+                const graphics = this.add.graphics();
+
+                // 桌面
+                graphics.fillGradientStyle(0xcd853f, 0xcd853f, 0x8b4513, 0x8b4513, 1);
+                graphics.fillRect(x, y, 100, 55);
+
+                // 边框
+                graphics.lineStyle(3, 0x5d4037);
+                graphics.strokeRect(x, y, 100, 55);
+
+                // 桌面高光
+                graphics.fillStyle(0xffffff, 0.15);
+                graphics.fillRect(x + 5, y + 5, 90, 10);
+
+                // 阴影
+                graphics.fillStyle(0x000000, 0.3);
+                graphics.fillRect(x + 10, y + 55, 80, 8);
+            }
+
+            drawCharacter(x, y, color, id) {
+                const container = this.add.container(x, y);
+                const graphics = this.add.graphics();
+
+                // 皮肤色
+                const skinColor = 0xffccaa;
+                const hairColor = id === 'PYJ' || id === 'CYJ' ? 0xd63031 : 0x6d4c41;
+                const pantsColor = 0x2d3436;
+
+                // 身体渐变
+                const bodyLight = color;
+                const bodyDark = this.darkenColor(color, 20);
+
+                // ========== 头部 (4x4 像素块，每个8px) ==========
+                // 头发（顶部）
+                graphics.fillStyle(hairColor);
+                graphics.fillRect(-16, -48, 32, 8);
+
+                // 脸
+                graphics.fillStyle(skinColor);
+                graphics.fillRect(-16, -40, 32, 24);
+
+                // 头发（侧边）
+                graphics.fillStyle(hairColor);
+                graphics.fillRect(-16, -40, 8, 24);
+                graphics.fillRect(8, -40, 8, 24);
+                graphics.fillRect(-16, -16, 32, 8);
+
+                // 眼睛
+                graphics.fillStyle(0x000000);
+                graphics.fillRect(-8, -28, 4, 4);
+                graphics.fillRect(4, -28, 4, 4);
+
+                // ========== 身体 (5x4 像素块) ==========
+                // 躯干主体
+                graphics.fillGradientStyle(bodyLight, bodyLight, bodyDark, bodyDark, 1);
+                graphics.fillRect(-20, -8, 40, 32);
+
+                // 身体高光
+                graphics.fillStyle(0xffffff, 0.2);
+                graphics.fillRect(-16, -4, 32, 12);
+
+                // 裤子
+                graphics.fillStyle(pantsColor);
+                graphics.fillRect(-12, 24, 24, 12);
+
+                // 轮廓线
+                graphics.lineStyle(1, 0x000000, 0.3);
+                graphics.strokeRect(-20, -8, 40, 32);
+
+                container.add(graphics);
+
+                // 添加阴影
+                const shadow = this.add.ellipse(0, 50, 50, 15, 0x000000, 0.3);
+                container.addAt(shadow, 0);
+
+                return container;
+            }
+
+            darkenColor(color, percent) {
+                const r = (color >> 16) & 0xFF;
+                const g = (color >> 8) & 0xFF;
+                const b = color & 0xFF;
+
+                const newR = Math.floor(r * (100 - percent) / 100);
+                const newG = Math.floor(g * (100 - percent) / 100);
+                const newB = Math.floor(b * (100 - percent) / 100);
+
+                return (newR << 16) | (newG << 8) | newB;
+            }
+
+            createStatusBubble(x, y, text) {
+                const container = this.add.container(x, y);
+                const graphics = this.add.graphics();
+
+                // 气泡宽度根据文字调整
+                const width = Math.max(80, text.length * 12 + 20);
+                const height = 30;
+
+                // 气泡背景
+                graphics.fillStyle(0xffffff);
+                graphics.fillRoundedRect(-width/2, -height/2, width, height, 6);
+
+                // 气泡边框
+                graphics.lineStyle(2, 0x000000);
+                graphics.strokeRoundedRect(-width/2, -height/2, width, height, 6);
+
+                // 小三角
+                graphics.fillStyle(0xffffff);
+                graphics.beginPath();
+                graphics.moveTo(-8, height/2);
+                graphics.lineTo(8, height/2);
+                graphics.lineTo(0, height/2 + 8);
+                graphics.closePath();
+                graphics.fillPath();
+
+                graphics.lineStyle(2, 0x000000);
+                graphics.beginPath();
+                graphics.moveTo(-8, height/2);
+                graphics.lineTo(0, height/2 + 8);
+                graphics.lineTo(8, height/2);
+                graphics.strokePath();
+
+                container.add(graphics);
+
+                // 文字
+                const label = this.add.text(0, 0, text, {
+                    fontFamily: 'Arial',
+                    fontSize: '12px',
+                    color: '#000000',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+
+                container.add(label);
+
+                return container;
+            }
+
+            createNameTag(x, y, name, role) {
+                const container = this.add.container(x, y);
+
+                // 名字背景
+                const nameBg = this.add.graphics();
+                nameBg.fillStyle(0x000000, 0.8);
+                nameBg.fillRoundedRect(-25, 0, 50, 22, 4);
+                nameBg.lineStyle(2, 0xffffff);
+                nameBg.strokeRoundedRect(-25, 0, 50, 22, 4);
+                container.add(nameBg);
+
+                // 名字文字
+                const nameText = this.add.text(0, 11, name, {
+                    fontFamily: 'Arial',
+                    fontSize: '12px',
+                    color: '#ffffff',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+                container.add(nameText);
+
+                // 角色标签
+                const roleText = this.add.text(0, 32, role, {
+                    fontFamily: 'Arial',
+                    fontSize: '10px',
+                    color: '#ffffff',
+                    backgroundColor: '#000000',
+                    padding: { x: 6, y: 2 }
+                }).setOrigin(0.5);
+                container.add(roleText);
+            }
+
+            showCharacterDetail(id) {
+                const member = TEAM_MEMBERS[id];
+                const state = getMemberState(id);
+
+                alert(
+                    `👤 ${member.name}\n` +
+                    `🎭 ${member.role}\n` +
+                    `💭 当前活动：${state.activity || '休息中'}\n` +
+                    `😊 心情：${state.mood || '开心'}\n` +
+                    `📍 位置：房车内部`
+                );
+            }
+
+            refreshStates() {
+                Object.keys(this.bubbles).forEach(id => {
+                    const state = getMemberState(id);
+                    const bubble = this.bubbles[id];
+
+                    // 更新气泡文字
+                    const text = bubble.list[1];
+                    if (text) {
+                        text.setText(state.activity || '休息中');
+                    }
+                });
+            }
+        }
+
+        // 游戏配置
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 450,
+            parent: 'game-container',
+            backgroundColor: '#2d3436',
+            pixelArt: true,  // 关键：像素完美模式
+            scene: RVInteriorScene,
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            }
+        };
+
+        // 创建游戏
+        const game = new Phaser.Game(config);
+    </script>
+</body>
+</html>

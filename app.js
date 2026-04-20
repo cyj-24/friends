@@ -714,8 +714,14 @@ function renderRVInterior() {
             <h2 class="rv-interior-title">🚐 房车内部 - 实时看板</h2>
 
             <!-- 窗户 -->
-            <div class="pixel-window" style="left: 20px;"></div>
-            <div class="pixel-window" style="right: 20px;"></div>
+            <div class="pixel-window" style="left: 30px;"></div>
+            <div class="pixel-window" style="right: 30px;"></div>
+
+            <!-- 驾驶座区域 -->
+            <div class="pixel-driver-area">
+                <div class="pixel-driver-seat"></div>
+                <div class="pixel-steering-wheel"></div>
+            </div>
 
             <!-- 家具 -->
             <div class="pixel-furniture pixel-sofa"></div>
@@ -725,7 +731,7 @@ function renderRVInterior() {
             <div class="pixel-floor"></div>
 
             <!-- JCL - 驾驶座区域 -->
-            <div class="rv-pixel-person rv-person-jcl" style="top: 100px; left: 40px;">
+            <div class="rv-pixel-person rv-person-jcl" style="top: 115px; left: 35px;">
                 <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.JCL)}</div>
                 <div class="rv-pixel-avatar">
                     <div class="rv-pixel-head">
@@ -736,6 +742,8 @@ function renderRVInterior() {
                     </div>
                 </div>
                 <div class="rv-name-tag">JCL</div>
+                <div class="role-tag">🧑‍✈️ 主驾驶</div>
+                <div class="position-tag">📍 驾驶座</div>
             </div>
 
             <!-- PYJ - 厨房区域 -->
@@ -750,10 +758,12 @@ function renderRVInterior() {
                     </div>
                 </div>
                 <div class="rv-name-tag">PYJ</div>
+                <div class="role-tag">👩‍🍳 厨师</div>
+                <div class="position-tag">📍 厨房区</div>
             </div>
 
             <!-- LWJ - 桌子旁 -->
-            <div class="rv-pixel-person rv-person-lwj" style="bottom: 100px; left: 50%; transform: translateX(-50%);">
+            <div class="rv-pixel-person rv-person-lwj" style="bottom: 90px; left: 50%; transform: translateX(-50%);">
                 <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.LWJ)}</div>
                 <div class="rv-pixel-avatar">
                     <div class="rv-pixel-head">
@@ -764,10 +774,12 @@ function renderRVInterior() {
                     </div>
                 </div>
                 <div class="rv-name-tag">LWJ</div>
+                <div class="role-tag">👨‍💻 导航</div>
+                <div class="position-tag">📍 餐桌旁</div>
             </div>
 
             <!-- CYJ - 沙发区 -->
-            <div class="rv-pixel-person rv-person-cyj" style="bottom: 100px; right: 70px;">
+            <div class="rv-pixel-person rv-person-cyj" style="bottom: 90px; right: 70px;">
                 <div class="rv-status-bubble">${getActivity(TEAM_MEMBERS.CYJ)}</div>
                 <div class="rv-pixel-avatar">
                     <div class="rv-pixel-head">
@@ -778,6 +790,8 @@ function renderRVInterior() {
                     </div>
                 </div>
                 <div class="rv-name-tag">CYJ</div>
+                <div class="role-tag">👩‍📸 摄影</div>
+                <div class="position-tag">📍 沙发区</div>
             </div>
         </div>
     `;
