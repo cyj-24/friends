@@ -95,9 +95,8 @@
             const data = localStorage.getItem('rv_adventure_data');
             if (data) {
                 const parsed = JSON.parse(data);
-                const member = parsed.members.find(m => m.id === id);
-                if (member && member.state) {
-                    return member.state;
+                if (parsed.team && parsed.team[id] && parsed.team[id].state) {
+                    return parsed.team[id].state;
                 }
             }
             return { activity: '休息中', mood: '开心' };
