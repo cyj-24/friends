@@ -393,8 +393,10 @@
 
                 container.add(graphics);
 
-                // 添加阴影
-                const shadow = this.add.ellipse(0, 50, 50, 15, 0x000000, 0.3);
+                // 添加阴影（使用圆形替代 ellipse）
+                const shadow = this.add.graphics();
+                shadow.fillStyle(0x000000, 0.3);
+                shadow.fillCircle(0, 50, 25);
                 container.addAt(shadow, 0);
 
                 return container;
@@ -519,16 +521,19 @@
 
         // 游戏配置
         const config = {
-            type: Phaser.AUTO,
+            type: Phaser.CANVAS,  // 使用 Canvas 而非 WebGL，兼容性更好
             width: 800,
             height: 450,
             parent: 'game-container',
             backgroundColor: '#2d3436',
-            pixelArt: true,  // 关键：像素完美模式
+            pixelArt: true,
             scene: RVInteriorScene,
             scale: {
                 mode: Phaser.Scale.FIT,
                 autoCenter: Phaser.Scale.CENTER_BOTH
+            },
+            audio: {
+                disableAudio: true  // 禁用音频，避免 AudioContext 警告
             }
         };
 
