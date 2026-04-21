@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚐 房车内部 - Phaser 素材版本</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #fff; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .header p { color: #74b9ff; font-size: 14px; margin-top: 8px; }
+        #game-container {
+            border: 4px solid #3d3226;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .info {
+            margin-top: 15px;
+            color: #b2bec3;
+            font-size: 12px;
+            text-align: center;
+        }
+        .back-link {
+            margin-top: 20px;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #ff6b35;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .back-link:hover { background: #ff8555; }
+        .download-note {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            color: #b2bec3;
+            font-size: 12px;
+        }
+        .download-note code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #74b9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚐 房车内部实时看板</h1>
+        <p>Phaser 3 + 开源素材版本</p>
+    </div>
+
+    <div id="game-container"></div>
+
+    <div class="download-note">
+        ⚠️ 需要先下载素材文件到 assets/ 目录<br>
+        运行: <code>curl -L "https://opengameart.org/sites/default/files/house_inside.png" -o assets/house_inside.png</code>
+    </div>
+
+    <div class="info">
+        点击人物查看详细状态 | 数据与主页面同步
+    </div>
+
+    <a href="index.html" class="back-link">← 返回主页面</a>
+
+    <script>
+        // 团队成员数据
+        const TEAM_MEMBERS = {
+            JCL: { name: 'JCL', role: '主驾驶', color: 0x0984e3, x: 120, y: 200 },
+            PYJ: { name: 'PYJ', role: '厨师', color: 0xfd79a8, x: 680, y: 200 },
+            LWJ: { name: 'LWJ', role: '导航', color: 0x00b894, x: 400, y: 380 },
+            CYJ: { name: 'CYJ', role: '摄影', color: 0x6c5ce7, x: 600, y: 380 }
+        };
+
+        function getMemberState(id) {
+            const data = localStorage.getItem('rv_adventure_data');
+            if (data) {
+                const parsed = JSON.parse(data);
+                if (parsed.team && parsed.team[id] && parsed.team[id].state) {
+                    return parsed.team[id].state;
+                }
+            }
+            return { activity: '休息中', mood: '开心' };
+        }
+
+        class RVInteriorScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'RVInterior' });
+            }
+
+            preload() {
+                // 尝试加载开源素材
+                this.load.image('floor', 'assets/house_inside.png');
+                this.load.image('furniture', 'assets/furniture.png');
+
+                // 如果素材加载失败，使用程序化生成
+                this.load.on('loaderror', (file) => {
+                    console.warn('素材加载失败，将使用程序化生成:', file.key);
+                });
+            }
+
+            create() {
+                // 检查素材是否成功加载
+                const hasAssets = this.textures.exists('floor');
+
+                if (hasAssets) {
+                    this.createWithAssets();
+                } else {
+                    this.createProcedural();
+                }
+
+                // 标题
+                this.add.text(400, 20, hasAssets ? '🚐 房车内部 - 素材版' : '🚐 房车内部 - 程序生成版', {
+                    fontFamily: 'Arial',
+                    fontSize: '20px',
+                    color: '#ffffff',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5).setShadow(2, 2, '#000000', 2, true, true);
+
+                // 添加人物
+                this.createCharacters();
+            }
+
+            // 使用素材创建场景
+            createWithAssets() {
+                // 创建地板 tilemap
+                const floorTiles = this.textures.get('floor');
+
+                // 使用图片的一部分作为地板（假设第0帧是地板）
+                for (let x = 0; x < 800; x += 32) {
+                    for (let y = 300; y < 450; y += 32) {
+                        this.add.image(x + 16, y + 16, 'floor', 0).setOrigin(0.5);
+                    }
+                }
+
+                // 添加一些家具
+                this.add.image(200, 300, 'furniture', 0);
+                this.add.image(600, 350, 'furniture', 1);
+
+                // 添加半透明背景
+                const bg = this.add.graphics();
+                bg.fillStyle(0x5d4e37, 0.8);
+                bg.fillRect(0, 0, 800, 450);
+            }
+
+            // 程序化生成场景（素材缺失时使用）
+            createProcedural() {
+                this.drawBackground();
+                this.drawFloor();
+                this.drawWindow(80, 60);
+                this.drawWindow(720, 60);
+                this.drawDriverArea(40, 140);
+                this.drawSofa(580, 340);
+                this.drawTable(350, 360);
+            }
+
+            drawBackground() {
+                const graphics = this.add.graphics();
+                graphics.fillGradientStyle(0x6d5e47, 0x6d5e47, 0x5d4e37, 0x5d4e37, 1);
+                graphics.fillRect(0, 0, 800, 450);
+                graphics.fillGradientStyle(0x5d4e37, 0x5d4e37, 0x4d3e27, 0x4d3e27, 0.5);
+                graphics.fillRect(0, 300, 800, 150);
+                graphics.lineStyle(6, 0x3d3226);
+                graphics.strokeRect(0, 0, 800, 450);
+            }
+
+            drawFloor() {
+                const graphics = this.add.graphics();
+                graphics.fillStyle(0x8b7355);
+                graphics.fillRect(0, 370, 800, 80);
+                graphics.fillStyle(0xa0826d);
+                for (let i = 0; i < 800; i += 40) {
+                    graphics.fillRect(i, 370, 20, 80);
+                }
+                graphics.lineStyle(6, 0x3d3226);
+                graphics.beginPath();
+                graphics.moveTo(0, 370);
+                graphics.lineTo(800, 370);
+                graphics.strokePath();
+                graphics.fillStyle(0x000000, 0.3);
+                graphics.fillRect(0, 370, 800, 10);
+            }
+
+            drawWindow(x, y) {
+                const graphics = this.add.graphics();
+                graphics.fillStyle(0x3d3226);
+                graphics.fillRect(x - 44, y - 34, 88, 68);
+                graphics.fillGradientStyle(0x87ceeb, 0x87ceeb, 0xb8e6f5, 0x5dade2, 1);
+                graphics.fillRect(x - 40, y - 30, 80, 60);
+                graphics.fillStyle(0x3d3226);
+                graphics.fillRect(x - 2, y - 30, 4, 60);
+                graphics.fillRect(x - 40, y - 2, 80, 4);
+                graphics.fillStyle(0xffffff, 0.3);
+                graphics.fillRect(x - 35, y - 25, 15, 20);
+            }
+
+            drawDriverArea(x, y) {
+                const graphics = this.add.graphics();
+                graphics.fillStyle(0x2d3436);
+                graphics.fillRect(x, y, 110, 90);
+                graphics.lineStyle(3, 0x1a1a1a);
+                graphics.strokeRect(x, y, 110, 90);
+                graphics.fillGradientStyle(0x636e72, 0x636e72, 0x2d3436, 0x2d3436, 1);
+                graphics.fillRect(x + 10, y + 15, 55, 55);
+                graphics.lineStyle(2, 0x1a1a1a);
+                graphics.strokeRect(x + 10, y + 15, 55, 55);
+
+                const wheelGraphics = this.add.graphics();
+                wheelGraphics.fillStyle(0x2d3436);
+                wheelGraphics.fillCircle(x + 85, y + 35, 18);
+                wheelGraphics.fillStyle(0x636e72);
+                wheelGraphics.fillCircle(x + 85, y + 35, 12);
+                wheelGraphics.fillStyle(0x2d3436);
+                wheelGraphics.fillCircle(x + 85, y + 35, 6);
+                wheelGraphics.fillStyle(0x636e72);
+                wheelGraphics.fillRect(x + 83, y + 17, 4, 36);
+                wheelGraphics.fillRect(x + 67, y + 33, 36, 4);
+            }
+
+            drawSofa(x, y) {
+                const graphics = this.add.graphics();
+                graphics.fillGradientStyle(0xff7675, 0xff7675, 0xe17055, 0xe17055, 1);
+                graphics.fillRect(x, y - 25, 120, 25);
+                graphics.lineStyle(3, 0x3d3226);
+                graphics.strokeRect(x, y - 25, 120, 25);
+                graphics.fillGradientStyle(0xe17055, 0xe17055, 0xd63031, 0xd63031, 1);
+                graphics.fillRect(x, y, 120, 50);
+                graphics.strokeRect(x, y, 120, 50);
+                graphics.fillStyle(0x000000, 0.2);
+                graphics.fillRect(x + 5, y + 45, 110, 8);
+            }
+
+            drawTable(x, y) {
+                const graphics = this.add.graphics();
+                graphics.fillGradientStyle(0xcd853f, 0xcd853f, 0x8b4513, 0x8b4513, 1);
+                graphics.fillRect(x, y, 100, 55);
+                graphics.lineStyle(3, 0x5d4037);
+                graphics.strokeRect(x, y, 100, 55);
+                graphics.fillStyle(0xffffff, 0.15);
+                graphics.fillRect(x + 5, y + 5, 90, 10);
+                graphics.fillStyle(0x000000, 0.3);
+                graphics.fillRect(x + 10, y + 55, 80, 8);
+            }
+
+            createCharacters() {
+                this.characters = {};
+                this.bubbles = {};
+
+                Object.keys(TEAM_MEMBERS).forEach(id => {
+                    const member = TEAM_MEMBERS[id];
+                    const state = getMemberState(id);
+
+                    this.characters[id] = this.drawCharacter(member.x, member.y, member.color, id);
+                    this.bubbles[id] = this.createStatusBubble(member.x, member.y - 60, state.activity || '休息中');
+                    this.createNameTag(member.x, member.y + 45, member.name, member.role);
+
+                    const char = this.characters[id];
+                    char.setInteractive();
+                    char.on('pointerover', () => {
+                        this.tweens.add({ targets: char, scale: 1.1, duration: 200, ease: 'Power2' });
+                        document.body.style.cursor = 'pointer';
+                    });
+                    char.on('pointerout', () => {
+                        this.tweens.add({ targets: char, scale: 1, duration: 200, ease: 'Power2' });
+                        document.body.style.cursor = 'default';
+                    });
+                    char.on('pointerdown', () => {
+                        this.showCharacterDetail(id);
+                    });
+                });
+
+                this.time.addEvent({
+                    delay: 5000,
+                    callback: this.refreshStates,
+                    callbackScope: this,
+                    loop: true
+                });
+            }
+
+            drawCharacter(x, y, color, id) {
+                const container = this.add.container(x, y);
+                const graphics = this.add.graphics();
+                const skinColor = 0xffccaa;
+                const hairColor = id === 'PYJ' || id === 'CYJ' ? 0xd63031 : 0x6d4c41;
+                const pantsColor = 0x2d3436;
+                const bodyLight = color;
+                const bodyDark = this.darkenColor(color, 20);
+
+                graphics.fillStyle(hairColor);
+                graphics.fillRect(-16, -48, 32, 8);
+                graphics.fillStyle(skinColor);
+                graphics.fillRect(-16, -40, 32, 24);
+                graphics.fillStyle(hairColor);
+                graphics.fillRect(-16, -40, 8, 24);
+                graphics.fillRect(8, -40, 8, 24);
+                graphics.fillRect(-16, -16, 32, 8);
+                graphics.fillStyle(0x000000);
+                graphics.fillRect(-8, -28, 4, 4);
+                graphics.fillRect(4, -28, 4, 4);
+                graphics.fillGradientStyle(bodyLight, bodyLight, bodyDark, bodyDark, 1);
+                graphics.fillRect(-20, -8, 40, 32);
+                graphics.fillStyle(0xffffff, 0.2);
+                graphics.fillRect(-16, -4, 32, 12);
+                graphics.fillStyle(pantsColor);
+                graphics.fillRect(-12, 24, 24, 12);
+                graphics.lineStyle(1, 0x000000, 0.3);
+                graphics.strokeRect(-20, -8, 40, 32);
+                container.add(graphics);
+
+                const shadow = this.add.graphics();
+                shadow.fillStyle(0x000000, 0.3);
+                shadow.fillCircle(0, 50, 25);
+                container.addAt(shadow, 0);
+
+                return container;
+            }
+
+            darkenColor(color, percent) {
+                const r = (color >> 16) & 0xFF;
+                const g = (color >> 8) & 0xFF;
+                const b = color & 0xFF;
+                const newR = Math.floor(r * (100 - percent) / 100);
+                const newG = Math.floor(g * (100 - percent) / 100);
+                const newB = Math.floor(b * (100 - percent) / 100);
+                return (newR << 16) | (newG << 8) | newB;
+            }
+
+            createStatusBubble(x, y, text) {
+                const container = this.add.container(x, y);
+                const graphics = this.add.graphics();
+                const width = Math.max(80, text.length * 12 + 20);
+                const height = 30;
+                graphics.fillStyle(0xffffff);
+                graphics.fillRoundedRect(-width/2, -height/2, width, height, 6);
+                graphics.lineStyle(2, 0x000000);
+                graphics.strokeRoundedRect(-width/2, -height/2, width, height, 6);
+                graphics.fillStyle(0xffffff);
+                graphics.beginPath();
+                graphics.moveTo(-8, height/2);
+                graphics.lineTo(8, height/2);
+                graphics.lineTo(0, height/2 + 8);
+                graphics.closePath();
+                graphics.fillPath();
+                graphics.lineStyle(2, 0x000000);
+                graphics.beginPath();
+                graphics.moveTo(-8, height/2);
+                graphics.lineTo(0, height/2 + 8);
+                graphics.lineTo(8, height/2);
+                graphics.strokePath();
+                container.add(graphics);
+                const label = this.add.text(0, 0, text, {
+                    fontFamily: 'Arial',
+                    fontSize: '12px',
+                    color: '#000000',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+                container.add(label);
+                return container;
+            }
+
+            createNameTag(x, y, name, role) {
+                const container = this.add.container(x, y);
+                const nameBg = this.add.graphics();
+                nameBg.fillStyle(0x000000, 0.8);
+                nameBg.fillRoundedRect(-25, 0, 50, 22, 4);
+                nameBg.lineStyle(2, 0xffffff);
+                nameBg.strokeRoundedRect(-25, 0, 50, 22, 4);
+                container.add(nameBg);
+                const nameText = this.add.text(0, 11, name, {
+                    fontFamily: 'Arial',
+                    fontSize: '12px',
+                    color: '#ffffff',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+                container.add(nameText);
+                const roleText = this.add.text(0, 32, role, {
+                    fontFamily: 'Arial',
+                    fontSize: '10px',
+                    color: '#ffffff',
+                    backgroundColor: '#000000',
+                    padding: { x: 6, y: 2 }
+                }).setOrigin(0.5);
+                container.add(roleText);
+            }
+
+            showCharacterDetail(id) {
+                const member = TEAM_MEMBERS[id];
+                const state = getMemberState(id);
+                alert(
+                    `👤 ${member.name}\n` +
+                    `🎭 ${member.role}\n` +
+                    `💭 当前活动：${state.activity || '休息中'}\n` +
+                    `😊 心情：${state.mood || '开心'}\n` +
+                    `📍 位置：房车内部`
+                );
+            }
+
+            refreshStates() {
+                Object.keys(this.bubbles).forEach(id => {
+                    const state = getMemberState(id);
+                    const bubble = this.bubbles[id];
+                    const text = bubble.list[1];
+                    if (text) {
+                        text.setText(state.activity || '休息中');
+                    }
+                });
+            }
+        }
+
+        const config = {
+            type: Phaser.CANVAS,
+            width: 800,
+            height: 450,
+            parent: 'game-container',
+            backgroundColor: '#2d3436',
+            pixelArt: true,
+            scene: RVInteriorScene,
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            },
+            audio: { disableAudio: true }
+        };
+
+        const game = new Phaser.Game(config);
+    </script>
+</body>
+</html>
